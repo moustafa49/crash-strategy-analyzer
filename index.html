@@ -6,38 +6,26 @@
     <title>محلل بيانات كراش</title>
     <style>
         body { font-family: sans-serif; background: #0f172a; color: white; text-align: center; padding: 20px; }
-        .container { max-width: 400px; margin: auto; background: #1e293b; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; }
-        button { width: 95%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .container { max-width: 400px; margin: auto; background: #1e293b; padding: 20px; border-radius: 15px; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; }
+        button { width: 95%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; }
         #result { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; background: #334155; }
-        .green { color: #4ade80; } .red { color: #fb7185; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>🚀 محلل الصاروخ</h2>
-        <p>انقل الأرقام من اللعبة وافصل بينها بفاصلة</p>
         <input type="text" id="dataInput" placeholder="مثلاً: 1.2, 5.0, 1.08">
         <button onclick="analyze()">تحليل الآن</button>
-        
-        <div id="result">
-            <p id="avgText"></p>
-            <p id="winText"></p>
-            <h3 id="statusText"></h3>
-        </div>
+        <div id="result"></div>
     </div>
-
     <script>
         async function analyze() {
             const input = document.getElementById('dataInput').value;
-            const history = input.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
-            
-            if(history.length === 0) return alert("من فضلك ادخل أرقام صحيحة");
-
+            const history = input.split(',').map(Number).filter(n => !isNaN(n));
             const resDiv = document.getElementById('result');
             resDiv.style.display = 'block';
-            resDiv.innerHTML = "جاري الحساب...";
-
+            resDiv.innerText = "جاري الحساب...";
             try {
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
@@ -45,16 +33,8 @@
                     body: JSON.stringify({history})
                 });
                 const res = await response.json();
-
-                resDiv.innerHTML = `
-                    <p>المتوسط الحالي: <b class="green">${res.average}x</b></p>
-                    <p>نسبة نجاح هدف 2x: <b class="green">${res.win_rate_2x}</b></p>
-                    <hr>
-                    <p>التوصية: <b class="${res.status === 'فرصة جيدة' ? 'green' : 'red'}">${res.status}</b></p>
-                `;
-            } catch (e) {
-                resDiv.innerHTML = "خطأ في الاتصال بالسيرفر";
-            }
+                resDiv.innerHTML = `المتوسط: ${res.average}x <br> النتيجة: ${res.status}`;
+            } catch (e) { resDiv.innerText = "خطأ في الاتصال"; }
         }
     </script>
 </body>
